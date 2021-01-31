@@ -1,0 +1,12 @@
+{
+  "name": "Api-Tortillas",
+  "version": "1.0.0",
+  "description": "Rest Api para el proyecto de Tortillas de Harina",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Donalson Javier",
+  "license": "ISC"
+}
