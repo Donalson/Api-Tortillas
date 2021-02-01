@@ -8,9 +8,9 @@ router.get('/', async (req, res) => {
     res.send('Bienvenido a la API del proyecto tortillas de harina')
 })
 
-//Ruta de llamado de Clientes
-router.get('/Clientes', async (req, res) => {
-    conexion.query('SELECT * FROM clientes WHERE Activo = 1', (err, rows, fields) => {
+//Ruta de llamado de Pedidos
+router.get('/Pedidos', async (req, res) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = CURRENT_DATE', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -19,10 +19,10 @@ router.get('/Clientes', async (req, res) => {
     });
 });
 
-//Ruta de llamado de Clientes por id
-router.get('/Clientes/:id', async (req, res) => {
-    const { id } = req.params;
-    conexion.query('SELECT * FROM clientes WHERE IdCliente = ?', [id], (err, rows, fields) => {
+//Ruta de llamado de Fecha especifica
+router.get('/Pedidos/:fecha', async (req, res) => {
+    const { fecha } = req.params;
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = ?', [fecha], (err, rows, fields) => {
         if(!err){
             res.json(rows[0]);
         }else{
@@ -31,39 +31,39 @@ router.get('/Clientes/:id', async (req, res) => {
     });
 });
 
-//Ruta de Creacion de Clientes
-router.post('/Clientes', async (req, res) => {
-    const { Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto} = req.body;
-    const SetenciaSQL = 'INSERT INTO `clientes` (`IdCliente`, `Nombres`, `Apellidos`, `Direccion`, `Telefono`, `Nit`, `Adelanto`, `Debe`, `Observacion`, `Foto`, `FC`, `FE`, `Activo`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp(), NULL, 1)';
-    conexion.query(SetenciaSQL,[Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto], (err, rows, fields) => {
+//Ruta de Creacion de Pedidos
+router.post('/Pedidos', async (req, res) => {
+    const { Fecha, Cliente, Tortilla, Cantidad} = req.body;
+    const SetenciaSQL = 'INSERT INTO `pedidos` (`IdPedido`, `Fecha`, `Cliente`, `Tortilla`, `Cantidad`) VALUES (NULL, ?, ?, ?, ?)';
+    conexion.query(SetenciaSQL,[Fecha, Cliente, Tortilla, Cantidad], (err, rows, fields) => {
         if(!err){
-            res.json({Status: 'Cliente Registrado'});
+            res.json({Status: 'Pedido Registrado'});
         }else{
             console.log(err)
         }
     });
 });
 
-//Ruta de Acutalizacion de Clientes
-router.put('/Clientes/:id', async (req, res) =>{
-    const { Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto, Activo} = req.body;
+//Ruta de Acutalizacion de Pedido
+router.put('/Pedidos/:id', async (req, res) =>{
+    const { Fecha, Cliente, Tortilla, Cantidad} = req.body;
     const { id } = req.params;
-    const SetenciaSQL = 'UPDATE `clientes` SET `Nombres` = ?, `Apellidos` = ?, `Direccion` = ?, `Telefono` = ?, `Nit` = ?, `Adelanto` = ?, `Debe` = ?, `Observacion` = ?, `Foto` = ?, `FE` = CURRENT_TIMESTAMP(), `Activo` = ? WHERE `IdCliente` = ?';
-    conexion.query(SetenciaSQL, [Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto, Activo, id], (err, rows, fields) => {
+    const SetenciaSQL = 'UPDATE `pedidos` SET `Fecha` = ?, `Cliente` = ?, `Tortilla` = ?, `Cantidad` = ? WHERE `IdPedido` = ?';
+    conexion.query(SetenciaSQL, [Fecha, Cliente, Tortilla, Cantidad, id], (err, rows, fields) => {
         if(!err){
-            res.json({Status: "Cliente Acutalizado"});
+            res.json({Status: "Pedido Acutalizado"});
         }else{
             console.log(err)
         }
     });
 });
 
-//Ruta de Borrado de Clientes
-router.delete('/Clientes/:id', async (req, res) => {
+//Ruta de Borrado de Pedidos
+router.delete('/Pedidos/:id', async (req, res) => {
     const { id } = req.params;
-    conexion.query('UPDATE `clientes` SET `Activo` = 0 WHERE `IdCliente` = ?', [id], (err, rows, fields) => {
+    conexion.query('DELETE FROM `pedidos` WHERE `IdPedido` = ?', [id], (err, rows, fields) => {
         if(!err){
-            res.json({Status: "Cliente marcado como inactivo"});
+            res.json({Status: "Pedido Borrado"});
         }else{
             console.log(err)
         }
