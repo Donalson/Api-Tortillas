@@ -24,7 +24,7 @@ router.get('/Pedidos/:fecha', async (req, res) => {
     const { fecha } = req.params;
     conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = ?', [fecha], (err, rows, fields) => {
         if(!err){
-            res.json(rows[0]);
+            res.json(rows);
         }else{
             console.log(err);
         }
