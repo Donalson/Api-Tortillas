@@ -8,9 +8,9 @@ router.get('/', async (req, res) => {
     res.send('Bienvenido a la API del proyecto tortillas de harina')
 })
 
-//Ruta de llamado de Clientes
-router.get('/Clientes', async (req, res) => {
-    conexion.query('SELECT * FROM clientes WHERE Activo = 1', (err, rows, fields) => {
+//Ruta de llamado de Ventas
+router.get('/Ventas', async (req, res) => {
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -19,10 +19,10 @@ router.get('/Clientes', async (req, res) => {
     });
 });
 
-//Ruta de llamado de Clientes por id
-router.get('/Clientes/:id', async (req, res) => {
+//Ruta de llamado de Ventas por id
+router.get('/Ventas/:id', async (req, res) => {
     const { id } = req.params;
-    conexion.query('SELECT * FROM clientes WHERE IdCliente = ?', [id], (err, rows, fields) => {
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE IdVenta = ?', [id], (err, rows, fields) => {
         if(!err){
             res.json(rows[0]);
         }else{
@@ -31,39 +31,13 @@ router.get('/Clientes/:id', async (req, res) => {
     });
 });
 
-//Ruta de Creacion de Clientes
-router.post('/Clientes', async (req, res) => {
-    const { Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto} = req.body;
-    const SetenciaSQL = 'INSERT INTO `clientes` (`IdCliente`, `Nombres`, `Apellidos`, `Direccion`, `Telefono`, `Nit`, `Adelanto`, `Debe`, `Observacion`, `Foto`, `FC`, `FE`, `Activo`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp(), NULL, 1)';
-    conexion.query(SetenciaSQL,[Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto], (err, rows, fields) => {
+//Ruta de Creacion de Ventas
+router.post('/Ventas', async (req, res) => {
+    const { Cliente, SubTotal, Total, Pago, Cambio} = req.body;
+    const SetenciaSQL = 'INSERT INTO Ventas (`IdVenta`, `Fecha`, `Cliente`, `SubTotal`, `Total`, `Pago`, `Cambio`) VALUES (NULL, CURRENT_TIMESTAMP(), ?, ?, ?, ?, ?)';
+    conexion.query(SetenciaSQL,[Cliente, SubTotal, Total, Pago, Cambio], (err, rows, fields) => {
         if(!err){
-            res.json({Status: 'Cliente Registrado'});
-        }else{
-            console.log(err)
-        }
-    });
-});
-
-//Ruta de Acutalizacion de Clientes
-router.put('/Clientes/:id', async (req, res) =>{
-    const { Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto, Activo} = req.body;
-    const { id } = req.params;
-    const SetenciaSQL = 'UPDATE `clientes` SET `Nombres` = ?, `Apellidos` = ?, `Direccion` = ?, `Telefono` = ?, `Nit` = ?, `Adelanto` = ?, `Debe` = ?, `Observacion` = ?, `Foto` = ?, `FE` = CURRENT_TIMESTAMP(), `Activo` = ? WHERE `IdCliente` = ?';
-    conexion.query(SetenciaSQL, [Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto, Activo, id], (err, rows, fields) => {
-        if(!err){
-            res.json({Status: "Cliente Acutalizado"});
-        }else{
-            console.log(err)
-        }
-    });
-});
-
-//Ruta de Borrado de Clientes
-router.delete('/Clientes/:id', async (req, res) => {
-    const { id } = req.params;
-    conexion.query('UPDATE `clientes` SET `Activo` = 0 WHERE `IdCliente` = ?', [id], (err, rows, fields) => {
-        if(!err){
-            res.json({Status: "Cliente marcado como inactivo"});
+            res.json({Status: 'Venta Registrada'});
         }else{
             console.log(err)
         }
