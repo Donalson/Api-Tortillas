@@ -1,4 +1,5 @@
 const express = require('express');//Llamado de express
+const { prependOnceListener } = require('../database');
 const router = express.Router();//Se llamo a la funcion de router de express
 
 const conexion = require('../database')//Se mando a llamar a la conexion de base de datos
@@ -17,6 +18,10 @@ router.get('/Pedidos', async (req, res) => {
 //Ruta de llamado de Ventas
 router.get('/Ventas', async (req, res) => {
     conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente', (err, rows, fields) => {
+//Ruta de llamado de Detalle
+router.get('/DetallesVentas/:factura', async (req, res) => {
+    const { factura } = req.params;
+    conexion.query('SELECT * FROM detalleventa WHERE Factura = ?', [factura], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -37,6 +42,10 @@ router.get('/Pedidos/:fecha', async (req, res) => {
 router.get('/Ventas/:id', async (req, res) => {
     const { id } = req.params;
     conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE IdVenta = ?', [id], (err, rows, fields) => {
+//Ruta de llamado de Detalle por id
+router.get('/DetallesVentas/:id', async (req, res) => {
+    const { id } = req.params;
+    conexion.query('SELECT * FROM detalleventa WHERE IdDetalle = ?', [id], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -106,6 +115,13 @@ router.post('/Ventas', async (req, res) => {
     conexion.query(SetenciaSQL,[Cliente, SubTotal, Total, Pago, Cambio], (err, rows, fields) => {
         if(!err){
             res.json({Status: 'Venta Registrada'});
+//Ruta de Creacion de Detalles
+router.post('/DetallesVentas', async (req, res) => {
+    const { Factura, Descripcion, Cantidad, Precio, Total} = req.body;
+    const SetenciaSQL = 'INSERT INTO `detalleventa` (`IdDetalle`, `Factura`, `Descripcion`, `Cantidad`, `Precio`, `Total`) VALUES (NULL, ?, ?, ?, ?, ?)';
+    conexion.query(SetenciaSQL,[Factura, Descripcion, Cantidad, Precio, Total], (err, rows, fields) => {
+        if(!err){
+            res.json({Status: 'Detalle Registrado'});
         }else{
             console.log(err)
         }
