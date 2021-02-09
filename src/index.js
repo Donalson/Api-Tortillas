@@ -8,11 +8,14 @@ const app = express();
 app.set('port', process.env.PORT || 3000);
 
 const storage = multer.diskStorage({
+  destination: 'Uploads',
   filename: (req, file, cb) => {
-    destination: 'Uploads',
     cb(null, file.originalname)
   }
 })
+
+//Archivos Estaticos
+app.use(express.static('Uploads'));
 
 //Middlewares
 app.use(express.json());
@@ -49,9 +52,6 @@ app.use(cors({
 
 //Rutas
 app.use(require('./routes/rutas'));
-
-//Archivos Estaticos
-app.use(express.static('Uploads'));
 
 //Inicio de Servidor
 app.listen(app.get('port'), () => {

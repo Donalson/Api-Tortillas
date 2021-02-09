@@ -9,6 +9,7 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/SubirFoto', (req, res) => {
+    //console.log(req.file)
     res.json({mensaje: 'Imagen Subida'})
 })
 
