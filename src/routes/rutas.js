@@ -1,5 +1,6 @@
 const express = require('express');//Llamado de express
 const router = express.Router();//Se llamo a la funcion de router de express
+const fs = require('fs').promises//Importamos la funciona para eliminar la foto antigua
 
 const conexion = require('../database')//Se mando a llamar a la conexion de base de datos
 
@@ -11,6 +12,16 @@ router.get('/', async (req, res) => {
 router.post('/SubirFoto', (req, res) => {
     //console.log(req.file)
     res.json({mensaje: 'Imagen Subida'})
+})
+
+router.post('/BorrarFoto', (req, res) => {
+    const { FotoVieja } = req.body;
+
+    fs.unlink('./Uploads/' + FotoVieja).then(() => {
+        res.json({mensaje: 'Imagen Eliminada'})
+    }).catch(err => {
+        console.error('Algo Salio Mal Removiendo La Foto: ', err)
+    })
 })
 
 //RUTAS DE LLAMADO GENERAL
