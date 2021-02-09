@@ -1,5 +1,4 @@
 const express = require('express');//Llamado de express
-const { prependOnceListener } = require('../database');
 const router = express.Router();//Se llamo a la funcion de router de express
 
 const conexion = require('../database')//Se mando a llamar a la conexion de base de datos
@@ -7,6 +6,10 @@ const conexion = require('../database')//Se mando a llamar a la conexion de base
 //Ruta de Bienvenida de la APi
 router.get('/', async (req, res) => {
     res.send('Bienvenido a la API del proyecto tortillas de harina')
+})
+
+router.post('/SubirFoto', (req, res) => {
+    res.json({mensaje: 'Imagen Subida'})
 })
 
 //RUTAS DE LLAMADO GENERAL
