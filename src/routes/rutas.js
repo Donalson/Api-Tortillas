@@ -1,6 +1,6 @@
 const express = require('express');//Llamado de express
 const router = express.Router();//Se llamo a la funcion de router de express
-const fs = require('fs').promises//Importamos la funciona para eliminar la foto antigua
+const fs = require('fs').promises;//Importamos la funciona para eliminar la foto antigua
 
 const conexion = require('../database')//Se mando a llamar a la conexion de base de datos
 

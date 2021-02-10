@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(multer({
   storage,
   dest: 'Uploads',
-  limits: {fileSize: 1000000},
+  limits: {fileSize: 10000000},
   fileFilter: (req, file, cb) => {
     const extencionespermitidas = /jpeg|jpg|png/;
     const mimetype = extencionespermitidas.test(file.mimetype);
