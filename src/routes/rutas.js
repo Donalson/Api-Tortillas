@@ -50,7 +50,7 @@ router.get('/Tortillas', async (req, res) => {
 
 //Ruta de llamado de Pedidos
 router.get('/Pedidos', async (req, res) => {
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = CURRENT_DATE', (err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = CURRENT_DATE', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -111,7 +111,7 @@ router.get('/Tortillas/:id', async (req, res) => {
 //Ruta de llamado de Pedido por fecha especifica
 router.get('/Pedidos/:fecha', async (req, res) => {
     const { fecha } = req.params;
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = ?', [fecha], (err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = ?', [fecha], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
