@@ -50,7 +50,7 @@ router.get('/Tortillas', async (req, res) => {
 
 //Ruta de llamado de Pedidos
 router.get('/Pedidos', async (req, res) => {
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = CURRENT_DATE', (err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = CURRENT_DATE  ORDER BY c.Nombres, C.Apellidos, p.Tortilla', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -111,7 +111,7 @@ router.get('/Tortillas/:id', async (req, res) => {
 //Ruta de llamado de Pedido por fecha especifica
 router.get('/Pedidos/:fecha', async (req, res) => {
     const { fecha } = req.params;
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = ?', [fecha], (err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = ?  ORDER BY c.Nombres, C.Apellidos, p.Tortilla', [fecha], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -242,11 +242,10 @@ router.put('/Tortillas/:id', async (req, res) =>{
 });
 
 //Ruta de Acutalizacion de Pedido
-router.put('/Pedidos/:id', async (req, res) =>{
-    const { Fecha, Cliente, Tortilla, Cantidad} = req.body;
-    const { id } = req.params;
-    const SetenciaSQL = 'UPDATE `pedidos` SET `Fecha` = ?, `Cliente` = ?, `Tortilla` = ?, `Cantidad` = ? WHERE `IdPedido` = ?';
-    conexion.query(SetenciaSQL, [Fecha, Cliente, Tortilla, Cantidad, id], (err, rows, fields) => {
+router.put('/Pedidos', async (req, res) =>{
+    const { Cantidad, Fecha, Cliente, Tortilla } = req.body;
+    const SetenciaSQL = 'UPDATE pedidos SET Cantidad = ? WHERE Fecha = ? AND Cliente = ? AND Tortilla = ?';
+    conexion.query(SetenciaSQL, [Cantidad, Fecha, Cliente, Tortilla], (err, rows, fields) => {
         if(!err){
             res.json({Status: "Pedido Acutalizado"});
         }else{
@@ -282,9 +281,9 @@ router.delete('/Tortillas/:id', async (req, res) => {
 });
 
 //Ruta de Borrado de Pedidos
-router.delete('/Pedidos/:id', async (req, res) => {
-    const { id } = req.params;
-    conexion.query('DELETE FROM `pedidos` WHERE `IdPedido` = ?', [id], (err, rows, fields) => {
+router.delete('/Pedidos', async (req, res) => {
+    const { Cliente, Fecha} = req.body;
+    conexion.query('DELETE FROM pedidos WHERE Cliente = ? AND Fecha = ?', [Cliente, Fecha], (err, rows, fields) => {
         if(!err){
             res.json({Status: "Pedido borrado"});
         }else{
