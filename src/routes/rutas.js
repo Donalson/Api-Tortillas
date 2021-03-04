@@ -3,17 +3,19 @@ const router = express.Router();//Se llamo a la funcion de router de express
 const fs = require('fs').promises;//Importamos la funciona para eliminar la foto antigua
 
 const conexion = require('../database')//Se mando a llamar a la conexion de base de datos
-
+//OTRAS RUTAS ----------------------------------------------------------------------------------------------------------------------------------------------
 //Ruta de Bienvenida de la APi
 router.get('/', async (req, res) => {
     res.send('Bienvenido a la API del proyecto tortillas de harina')
 })
 
+//Ruta para subir fotos
 router.post('/SubirFoto', (req, res) => {
     //console.log(req.file)
     res.json({mensaje: 'Imagen Subida'})
 })
 
+//Ruta para borrar fotos
 router.post('/BorrarFoto', (req, res) => {
     const { FotoVieja } = req.body;
 
@@ -24,11 +26,10 @@ router.post('/BorrarFoto', (req, res) => {
     })
 })
 
-//RUTAS DE LLAMADO GENERAL
-
+//RUTAS DE LLAMADO GENERAL ----------------------------------------------------------------------------------------------------------------------------------------------
 //Ruta de llamado de Clientes
 router.get('/Clientes', async (req, res) => {
-    conexion.query('SELECT * FROM clientes WHERE Activo = 1', (err, rows, fields) => {
+    conexion.query('SELECT * FROM clientes WHERE Activo = 1 ORDER BY Nombres', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -61,7 +62,7 @@ router.get('/Pedidos', async (req, res) => {
 
 //Ruta de llamado de Ventas
 router.get('/Ventas', async (req, res) => {
-    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente', (err, rows, fields) => {
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente ORDER BY c.Nombres,c.Apellidos', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -70,20 +71,18 @@ router.get('/Ventas', async (req, res) => {
     });
 });
 
-//Ruta de llamado de Detalle
-router.get('/DetallesVentas/:factura', async (req, res) => {
-    const { factura } = req.params;
-    conexion.query('SELECT * FROM detalleventa WHERE Factura = ?', [factura], (err, rows, fields) => {
+//Ruta de llamado de Pedidos sin Registrar en Ventas
+router.get('/PedidosARegistrar', async (req, res) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad, RVenta FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE RVenta = 0  ORDER BY p.Fecha DESC, c.Nombres, C.Apellidos, p.Tortilla', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
             console.log(err);
         }
     });
-});
+})
 
-//RUTAS DE LLAMADO POR ID
-
+//RUTAS DE LLAMADO POR ID ----------------------------------------------------------------------------------------------------------------------------------------------
 //Ruta de llamado de Clientes por id
 router.get('/Clientes/:id', async (req, res) => {
     const { id } = req.params;
@@ -120,10 +119,10 @@ router.get('/Pedidos/:fecha', async (req, res) => {
     });
 });
 
-//Ruta de llamado de Ventas por id
-router.get('/Ventas/:id', async (req, res) => {
-    const { id } = req.params;
-    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE IdVenta = ?', [id], (err, rows, fields) => {
+//Ruta de llamado de Ventas por Fecha
+router.get('/Ventas/:fecha', async (req, res) => {
+    const { fecha } = req.params;
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE Fecha = ? ORDER BY c.Nombres, C.Apellidos', [fecha], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -132,10 +131,10 @@ router.get('/Ventas/:id', async (req, res) => {
     });
 });
 
-//Ruta de llamado de Detalle por id
-router.get('/DetallesVentas/:id', async (req, res) => {
-    const { id } = req.params;
-    conexion.query('SELECT * FROM detalleventa WHERE IdDetalle = ?', [id], (err, rows, fields) => {
+//Ruta de llamado de Ventas por Cliente
+router.get('/VentasDe/:Cliente', async (req, res) => {
+    const { Cliente } = req.params;
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE v.Cliente = ? ORDER BY v.Fecha', [Cliente], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -144,8 +143,31 @@ router.get('/DetallesVentas/:id', async (req, res) => {
     });
 });
 
-//RUTAS DE CREACION GENERAL
+//Ruta de llamado de Detalle por Factura
+router.get('/DetallesVentas/:factura', async (req, res) => {
+    const { factura } = req.params;
+    conexion.query('SELECT * FROM detalleventa WHERE Factura = ?', [factura], (err, rows, fields) => {
+        if(!err){
+            res.json(rows);
+        }else{
+            console.log(err);
+        }
+    });
+});
 
+//Ruta de llamado de Pedidos sin Registrar en Ventas
+router.get('/PedidosARegistrar/:Fecha', async (req, res) => {
+    const { Fecha } = req.params;
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad, RVenta FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE RVenta = 0 AND p.Fecha = ?  ORDER BY c.Nombres, C.Apellidos, p.Tortilla', [Fecha] ,(err, rows, fields) => {
+        if(!err){
+            res.json(rows);
+        }else{
+            console.log(err);
+        }
+    });
+})
+
+//RUTAS DE CREACION GENERAL ----------------------------------------------------------------------------------------------------------------------------------------------
 //Ruta de Creacion de Clientes
 router.post('/Clientes', async (req, res) => {
     const { Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto} = req.body;
@@ -175,7 +197,7 @@ router.post('/Tortillas', async (req, res) => {
 //Ruta de Creacion de Pedidos
 router.post('/Pedidos', async (req, res) => {
     const { Fecha, Cliente, Tortilla, Cantidad} = req.body;
-    const SetenciaSQL = 'INSERT INTO `pedidos` (`IdPedido`, `Fecha`, `Cliente`, `Tortilla`, `Cantidad`) VALUES (NULL, ?, ?, ?, ?)';
+    const SetenciaSQL = 'INSERT INTO `pedidos` (`IdPedido`, `Fecha`, `Cliente`, `Tortilla`, `Cantidad`, `RVenta`) VALUES (NULL, ?, ?, ?, ?, 0)';
     conexion.query(SetenciaSQL,[Fecha, Cliente, Tortilla, Cantidad], (err, rows, fields) => {
         if(!err){
             res.json({Status: 'Pedido Registrado'});
@@ -188,7 +210,7 @@ router.post('/Pedidos', async (req, res) => {
 //Ruta de Creacion de Ventas
 router.post('/Ventas', async (req, res) => {
     const { Cliente, SubTotal, Total, Pago, Cambio} = req.body;
-    const SetenciaSQL = 'INSERT INTO Ventas (`IdVenta`, `Fecha`, `Cliente`, `SubTotal`, `Total`, `Pago`, `Cambio`) VALUES (NULL, CURRENT_TIMESTAMP(), ?, ?, ?, ?, ?)';
+    const SetenciaSQL = 'INSERT INTO Ventas (`IdVenta`, `Fecha`, `Cliente`, `SubTotal`, `Total`, `Pago`, `Cambio`) VALUES (NULL, CURRENT_DATE(), ?, ?, ?, ?, ?)';
     conexion.query(SetenciaSQL,[Cliente, SubTotal, Total, Pago, Cambio], (err, rows, fields) => {
         if(!err){
             res.json({Status: 'Venta Registrada'});
@@ -211,8 +233,7 @@ router.post('/DetallesVentas', async (req, res) => {
     });
 });
 
-//RUTAS DE ACTUALIZACION GENERAL
-
+//RUTAS DE ACTUALIZACION GENERAL ----------------------------------------------------------------------------------------------------------------------------------------------
 //Ruta de Acutalizacion de Clientes
 router.put('/Clientes/:id', async (req, res) =>{
     const { Nombres, Apellidos, Direccion, Telefono, Nit, Adelanto, Debe, Observacion, Foto, Activo} = req.body;
@@ -254,8 +275,20 @@ router.put('/Pedidos', async (req, res) =>{
     });
 });
 
-//RUTAS DE ELIMINACION
+//Ruta de Acutalizacion de RVenta de Pedidos
+router.put('/PedidosRVenta', async (req, res) =>{
+    const { Fecha, Cliente, } = req.body;
+    const SetenciaSQL = 'UPDATE pedidos SET RVenta = 1 WHERE Fecha = ? AND Cliente = ?';
+    conexion.query(SetenciaSQL, [Fecha, Cliente], (err, rows, fields) => {
+        if(!err){
+            res.json({Status: "Pedido Acutalizado"});
+        }else{
+            console.log(err)
+        }
+    });
+});
 
+//RUTAS DE ELIMINACION ----------------------------------------------------------------------------------------------------------------------------------------------
 //Ruta de Borrado de Clientes
 router.delete('/Clientes/:id', async (req, res) => {
     const { id } = req.params;
