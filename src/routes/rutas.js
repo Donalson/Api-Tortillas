@@ -51,7 +51,7 @@ router.get('/Tortillas', async (req, res) => {
 
 //Ruta de llamado de Pedidos
 router.get('/Pedidos', async (req, res) => {
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE p.Fecha = CURRENT_DATE  ORDER BY c.Nombres, C.Apellidos, p.Tortilla', (err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla ORDER BY c.Nombres, C.Apellidos, p.Tortilla', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
