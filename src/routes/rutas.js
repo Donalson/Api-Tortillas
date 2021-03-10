@@ -134,7 +134,7 @@ router.get('/Ventas/:fecha', async (req, res) => {
 //Ruta de llamado de Ventas por Cliente
 router.get('/VentasDe/:Cliente', async (req, res) => {
     const { Cliente } = req.params;
-    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE v.Cliente = ? ORDER BY v.Fecha', [Cliente], (err, rows, fields) => {
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente WHERE v.Cliente = ? ORDER BY v.Fecha DESC', [Cliente], (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -209,11 +209,12 @@ router.post('/Pedidos', async (req, res) => {
 
 //Ruta de Creacion de Ventas
 router.post('/Ventas', async (req, res) => {
-    const { Cliente, SubTotal, Total, Pago, Cambio} = req.body;
-    const SetenciaSQL = 'INSERT INTO Ventas (`IdVenta`, `Fecha`, `Cliente`, `SubTotal`, `Total`, `Pago`, `Cambio`) VALUES (NULL, CURRENT_DATE(), ?, ?, ?, ?, ?)';
-    conexion.query(SetenciaSQL,[Cliente, SubTotal, Total, Pago, Cambio], (err, rows, fields) => {
+    const { Fecha, Cliente, SubTotal, Total, Pago, Cambio} = req.body;
+    const SetenciaSQL = 'INSERT INTO Ventas (`IdVenta`, `Fecha`, `Cliente`, `SubTotal`, `Total`, `Pago`, `Cambio`) VALUES (NULL, ?, ?, ?, ?, ?, ?)';
+    conexion.query(SetenciaSQL,[Fecha, Cliente, SubTotal, Total, Pago, Cambio], (err, result) => {
         if(!err){
-            res.json({Status: 'Venta Registrada'});
+            const id = result.insertId
+            res.json({Status: 'Venta Registrada',Venta: id});
         }else{
             console.log(err)
         }
