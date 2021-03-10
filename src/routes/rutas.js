@@ -73,7 +73,7 @@ router.get('/Ventas', async (req, res) => {
 
 //Ruta de llamado de Pedidos sin Registrar en Ventas
 router.get('/PedidosARegistrar', async (req, res) => {
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad, RVenta FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE RVenta = 0  ORDER BY p.Fecha DESC, c.Nombres, C.Apellidos, p.Tortilla', (err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad, t.Precio FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE RVenta = 0  ORDER BY p.Fecha DESC, c.Nombres, C.Apellidos, p.Tortilla', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -158,7 +158,7 @@ router.get('/DetallesVentas/:factura', async (req, res) => {
 //Ruta de llamado de Pedidos sin Registrar en Ventas
 router.get('/PedidosARegistrar/:Fecha', async (req, res) => {
     const { Fecha } = req.params;
-    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad, RVenta FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE RVenta = 0 AND p.Fecha = ?  ORDER BY c.Nombres, C.Apellidos, p.Tortilla', [Fecha] ,(err, rows, fields) => {
+    conexion.query('SELECT p.IdPedido, p.Fecha, p.Cliente, C.Nombres, C.Apellidos, p.Tortilla, t.Descripcion, p.Cantidad, t.Precio FROM pedidos AS p INNER JOIN clientes AS c ON p.Cliente = c.IdCliente INNER JOIN tortillas as T ON p.Tortilla = t.IdTortilla WHERE RVenta = 0 AND p.Fecha = ?  ORDER BY c.Nombres, C.Apellidos, p.Tortilla', [Fecha] ,(err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
