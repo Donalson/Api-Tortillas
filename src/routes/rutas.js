@@ -62,7 +62,7 @@ router.get('/Pedidos', async (req, res) => {
 
 //Ruta de llamado de Ventas
 router.get('/Ventas', async (req, res) => {
-    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente ORDER BY c.Nombres,c.Apellidos', (err, rows, fields) => {
+    conexion.query('SELECT IdVenta, Fecha, c.Nombres, c.Apellidos, c.Direccion, c.Nit, SubTotal, Total, Pago, Cambio, Cliente FROM ventas AS v INNER JOIN clientes AS c ON v.Cliente = c.IdCliente ORDER BY c.Nombres,c.Apellidos', (err, rows, fields) => {
         if(!err){
             res.json(rows);
         }else{
@@ -251,10 +251,10 @@ router.put('/Clientes/:id', async (req, res) =>{
 
 //Ruta de Acutalizacion de Tortillas
 router.put('/Tortillas/:id', async (req, res) =>{
-    const { Descripcion, Precio, Foto, Activo} = req.body;
+    const { Descripcion, Precio, Activo} = req.body;
     const { id } = req.params;
-    const SetenciaSQL = 'UPDATE `tortillas` SET `Descripcion` = ?, `Precio` = ?, `Foto` = ?, `FE` = CURRENT_TIMESTAMP(), `Activa` = ? WHERE `IdTortilla` = ?';
-    conexion.query(SetenciaSQL, [Descripcion, Precio, Foto, Activo, id], (err, rows, fields) => {
+    const SetenciaSQL = 'UPDATE `tortillas` SET `Descripcion` = ?, `Precio` = ?, `FE` = CURRENT_TIMESTAMP(), `Activa` = ? WHERE `IdTortilla` = ?';
+    conexion.query(SetenciaSQL, [Descripcion, Precio, Activo, id], (err, rows, fields) => {
         if(!err){
             res.json({Status: "Tortilla Acutalizada"});
         }else{
