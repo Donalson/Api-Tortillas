@@ -183,8 +183,8 @@ router.post('/Clientes', async (req, res) => {
 
 //Ruta de Creacion de Tortilla
 router.post('/Tortillas', async (req, res) => {
-    const { Descripcion, Precio, Foto} = req.body;
-    const SetenciaSQL = 'INSERT INTO `tortillas` (`IdTortilla`, `Descripcion`, `Precio`, `Foto`, `FC`, `FE`, `Activa`) VALUES (NULL, ?, ?, ?, current_timestamp(), NULL, 1)';
+    const { Descripcion, Precio } = req.body;
+    const SetenciaSQL = 'INSERT INTO `tortillas` (`IdTortilla`, `Descripcion`, `Precio`, `FC`, `FE`, `Activa`) VALUES (NULL, ?, ?, current_timestamp(), NULL, 1)';
     conexion.query(SetenciaSQL,[Descripcion, Precio, Foto], (err, rows, fields) => {
         if(!err){
             res.json({Status: 'Tortilla Registrada'});
